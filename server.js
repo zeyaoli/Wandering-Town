@@ -2,7 +2,6 @@ const port = process.env.PORT || 8000;
 const express = require('express');
 const app = express();
 
-const Player = require('./Player');
 
 app.use(express.static('./'));
 
@@ -16,19 +15,49 @@ const io = require('socket.io').listen(server);
 
 let players = [];
 
-setInterval(updateGame, 16);
+// setInterval(updateGame, 16);
 
 io.sockets.on('connection', (socket)=>{
-    console.log(`We have a new client ${socket.id}`);
-    players.push(new Player(socket.id));
-    console.log(players);
+    socket.emit("login", {myId: socket.id, players});
 
-    socket.on('disconnect', function () {
-        console.log("Client has disconnected " + socket.id);
-        socket.emit('disconnected', socket.id);
-        players = players.filter(player => player.id !== socket.id);
+    //client join
+    socket.on("join", (data) => {
+        const {xPos, yPos, color} = data;
+        const player = {
+            id: socket.id,
+            xPos,
+            yPos,
+            color 
+        }
+        players.push(player);
+        console.log("We have a new client: " + player.id);
+
+        socket.broadcast.emit("join", player);
     });
-})
-function updateGame() {
-    io.sockets.emit("update", players);
-}
+
+    //client move
+    socket.on("move", (data) => {
+        const {xPos,yPos} = data;
+        const index = players.findIndex((e) =>e.id == socket.id);
+        if(index > -1){
+            players[index].xPos = xPos;
+            players[index].yPos = yPos;
+        }
+
+        socket.broadcast.emit("move", {id: socket.id, xPos: xPos, yPos: yPos});
+
+    });
+    
+
+    //client disconnect
+    socket.on("disconnect", function () {
+        //console.log("Client has disconnected " + socket.id);
+        const index = players.findIndex((e) =>e.id == socket.id);
+        if(index > -1){
+            console.log(socket.id + " disconnected.");
+            players.splice(index, 1);
+        }
+        socket.broadcast.emit("quit", socket.id);
+        
+    });
+});
