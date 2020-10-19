@@ -9,6 +9,12 @@ let treasures = [];
 let distance;
 let distances = [];
 
+let contents = [
+  "I am the black cat",
+  "I am a Nokia flip phone",
+  "I am a Twitter bot",
+];
+
 let socket = io.connect();
 
 socket.on("connect", () => {
@@ -31,7 +37,7 @@ function setup() {
   me = new Avatar(0, xPos, yPos, color);
 
   //set up treasure
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < contents.length; i++) {
     treasures.push(
       new Treasure(random(20, width - 20), random(20, height - 20))
     );
@@ -103,8 +109,8 @@ function move(x, y) {
 
   if (xPos > width) xPos = width;
   if (yPos > height) yPos = height;
-  if (xPos == 0) xPos = 0;
-  if (yPos == 0) yPos = 0;
+  if (xPos <= 0) xPos = 0;
+  if (yPos <= 0) yPos = 0;
 
   // console.log("xPos: " + xPos + ",yPos: " + yPos);
   me.xPos = xPos;
@@ -142,21 +148,3 @@ socket.on("quit", (id) => {
     players.splice(index, 1);
   }
 });
-
-//=============================== Avatar Class =====================================
-
-// class Avatar {
-//   constructor(id, xPos, yPos, color) {
-//     this.id = id;
-//     this.xPos = xPos;
-//     this.yPos = yPos;
-//     this.color = color;
-//     this.size = 20;
-//   }
-
-//   display() {
-//     rectMode(CENTER);
-//     fill(this.color.r, this.color.g, this.color.b);
-//     rect(this.xPos, this.yPos, this.size, this.size);
-//   }
-// }
