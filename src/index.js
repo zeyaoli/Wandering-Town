@@ -24,8 +24,7 @@ socket.on("connect", () => {
 // setup the canvas
 function setup() {
   createCanvas(800, 800);
-  // socket.on('update', players => updatePlayers(players));
-  // socket.on('disconnected', removePlayer(playerId));
+
   xPos = Math.floor(Math.random() * 400);
   yPos = Math.floor(Math.random() * 400);
   color = {
@@ -39,7 +38,7 @@ function setup() {
   //set up treasure
   for (let i = 0; i < contents.length; i++) {
     treasures.push(
-      new Treasure(random(20, width - 20), random(20, height - 20))
+      new Treasure(random(20, width - 20), random(20, height - 20), contents[i])
     );
   }
 
@@ -91,8 +90,6 @@ function draw() {
 function initPlayers(people) {
   players = [];
 
-  console.log(players);
-
   people
     .filter((e) => e.id != myId)
     .forEach((person) => {
@@ -100,6 +97,8 @@ function initPlayers(people) {
         new Avatar(person.id, person.xPos, person.yPos, person.color)
       );
     });
+
+  console.log(players);
 }
 
 // move position
