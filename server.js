@@ -14,11 +14,12 @@ const server = require('http').createServer(app).listen(port, ()=>console.log(`Y
 const io = require('socket.io').listen(server);
 
 let players = [];
+let treasures = [];
 
 // setInterval(updateGame, 16);
 
 io.sockets.on('connection', (socket)=>{
-    socket.emit("login", {myId: socket.id, players});
+    socket.emit("login", {myId: socket.id, players, treasures});
 
     //client join
     socket.on("join", (data) => {
@@ -27,12 +28,28 @@ io.sockets.on('connection', (socket)=>{
             id: socket.id,
             xPos,
             yPos,
-            color 
+            color
         }
         players.push(player);
         console.log("We have a new client: " + player.id);
 
+        // console.log(players);
         socket.broadcast.emit("join", player);
+    });
+
+    //Drop a treasue
+    socket.on("drop", (data) => {
+        const {txPos, tyPos, content} = data;
+        const treasure = {
+            txPos,
+            tyPos,
+            content
+        }
+        treasures.push(treasure);
+        console.log("We got a new treasure!");
+
+        console.log(treasure);
+        socket.broadcast.emit("drop", treasure);
     });
 
     //client move

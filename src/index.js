@@ -1,5 +1,6 @@
 let players = [];
 let me;
+let mytreasure;
 let myId;
 let xPos = 0;
 let yPos = 0;
@@ -9,11 +10,17 @@ let treasures = [];
 let distance;
 let distances = [];
 
+let canvasW;
+let canvasH;
+let txPos;
+let tyPox;
+
 let contents = [
   "I am the black cat",
   "I am a Nokia flip phone",
   "I am a Twitter bot",
 ];
+let content;
 
 let socket = io.connect();
 
@@ -32,15 +39,19 @@ function setup() {
     g: Math.floor(Math.random() * 255),
     b: Math.floor(Math.random() * 255),
   };
-  // console.log(color);
+
+
+  txPos = random(20, width - 20);
+  tyPos = random(20, height - 20);
+
   me = new Avatar(0, xPos, yPos, color);
 
-  //set up treasure
-  for (let i = 0; i < contents.length; i++) {
-    treasures.push(
-      new Treasure(random(20, width - 20), random(20, height - 20), contents[i])
-    );
-  }
+  content = contents[floor(Math.random()*contents.length)];
+  //set up my treasure
+  treasures.push(new Treasure(txPos, tyPos, content));
+
+  socket.emit("join", { xPos, yPos, color});
+  socket.emit("drop", { txPos, tyPos, content});
 
   //get the default distance to the array;
   for (let i = 0; i < treasures.length; i++) {
@@ -48,8 +59,7 @@ function setup() {
 
     distances.push(distance);
   }
-
-  socket.emit("join", { xPos, yPos, color });
+  
 }
 
 // draw the canvas
@@ -59,6 +69,9 @@ function draw() {
   me.display();
   //draw other players
   players.map((e) => e.display());
+
+  //show all treasure
+  treasures.map((e) => e.display());
 
   //move
   if (keyIsDown(LEFT_ARROW)) {
@@ -75,7 +88,7 @@ function draw() {
   for (let i = 0; i < treasures.length; i++) {
     distance = floor(dist(me.xPos, me.yPos, treasures[i].x, treasures[i].y));
     if (distance < 20) {
-      treasures[i].display();
+      treasures[i].showText();
     }
 
     distances[i] = distance;
@@ -101,6 +114,21 @@ function initPlayers(people) {
   console.log(players);
 }
 
+//initial treasures that already in this map
+function initTreasures(items) {
+  treasures = [];
+
+  items
+    .filter((e) => e.id != myId)
+    .forEach((item) => {
+      treasures.push(
+        new Treasure(item.txPos, item.tyPos, item.content)
+      );
+    });
+
+  console.log(treasures);
+}
+
 // move position
 function move(x, y) {
   xPos += x;
@@ -123,11 +151,18 @@ function move(x, y) {
 socket.on("login", (data) => {
   myId = data.myId;
   initPlayers(data.players);
+  initTreasures(data.treasures);
 });
 
 //Update when the player joins
 socket.on("join", (data) => {
   players.push(new Avatar(data.id, data.xPos, data.yPos, data.color));
+});
+
+//Update the treasure
+socket.on("drop", (data) => {
+  treasures.push(new Treasure(data.txPos, data.tyPos, data.content));
+  console.log(treasures);
 });
 
 //Update when the player moves
