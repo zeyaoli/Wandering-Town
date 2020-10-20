@@ -48,9 +48,10 @@ io.sockets.on('connection', (socket)=>{
         treasures.push(treasure);
         console.log("We got a new treasure!");
 
-        console.log(treasure);
+        console.log(treasures);
         socket.broadcast.emit("drop", treasure);
     });
+
 
     //client move
     socket.on("move", (data) => {
