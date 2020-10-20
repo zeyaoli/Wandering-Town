@@ -15,12 +15,14 @@ let canvasH;
 let txPos;
 let tyPox;
 
+let state = 1;
+
 let contents = [
   "I am the black cat",
   "I am a Nokia flip phone",
   "I am a Twitter bot",
 ];
-let content;
+let content ="";
 
 let socket = io.connect();
 
@@ -46,12 +48,12 @@ function setup() {
 
   me = new Avatar(0, xPos, yPos, color);
 
-  content = contents[floor(Math.random()*contents.length)];
+  // content = contents[floor(Math.random()*contents.length)];
   //set up my treasure
-  treasures.push(new Treasure(txPos, tyPos, content));
+  // treasures.push(new Treasure(txPos, tyPos, content));
 
   socket.emit("join", { xPos, yPos, color});
-  socket.emit("drop", { txPos, tyPos, content});
+  // socket.emit("drop", { txPos, tyPos, content});
 
   //get the default distance to the array;
   for (let i = 0; i < treasures.length; i++) {
@@ -59,7 +61,6 @@ function setup() {
 
     distances.push(distance);
   }
-  
 }
 
 // draw the canvas
@@ -99,6 +100,7 @@ function draw() {
   me.displayDistance(distances[0]);
 }
 
+
 //initial other players that already in this map
 function initPlayers(people) {
   players = [];
@@ -111,7 +113,7 @@ function initPlayers(people) {
       );
     });
 
-  console.log(players);
+  // console.log(players);
 }
 
 //initial treasures that already in this map
@@ -126,7 +128,7 @@ function initTreasures(items) {
       );
     });
 
-  console.log(treasures);
+  // console.log(treasures);
 }
 
 // move position
@@ -144,6 +146,28 @@ function move(x, y) {
   me.yPos = yPos;
   socket.emit("move", { xPos, yPos });
 }
+
+//submit function
+function submit(){
+  let text = document.getElementById("myText");
+  content = text.value;
+  treasures.push(new Treasure(txPos, tyPos, content));
+  socket.emit("drop", { txPos, tyPos, content});
+  // console.log(treasures);
+  let ctx = document.getElementById("defaultCanvas0");
+  ctx.style.display = "block";
+  // state = 2;
+  // loop();
+}
+
+// const submit = new Promise((resolve, reject) => {
+//   let text = document.getElementById("myText");
+//   if(text.value != ""){
+//     resolve(text.value);
+//   }else{
+//     reject("rejected");
+//   }
+// });
 
 //================================= Socket.on =============================
 
