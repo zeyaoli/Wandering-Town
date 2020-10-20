@@ -108,8 +108,8 @@ function move(x, y) {
 
   if (xPos > width) xPos = width;
   if (yPos > height) yPos = height;
-  if (xPos <= 0) xPos = 0;
-  if (yPos <= 0) yPos = 0;
+  if (xPos <= me.size / 2) xPos = me.size / 2;
+  if (yPos <= me.size / 2) yPos = me.size / 2;
 
   // console.log("xPos: " + xPos + ",yPos: " + yPos);
   me.xPos = xPos;
