@@ -20,6 +20,7 @@ class Avatar {
   //   }
 
   displayDistance(distance) {
+    fill(0);
     text(distance, this.xPos - this.size / 2, this.yPos - this.size);
   }
 

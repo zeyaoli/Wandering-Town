@@ -1,3 +1,19 @@
+const firstButton = document.getElementById("firstButton");
+const submitButton = document.getElementById("submit");
+
+const startBox = document.getElementById("start");
+const questionBox = document.getElementById("question-container");
+const bgCanvas = document.getElementById("bgCanvas");
+
+console.log(bgCanvas);
+
+firstButton.addEventListener("click", () => {
+  startBox.style.display = "none";
+  questionBox.style.display = "flex";
+});
+
+// ============================================================================
+
 let players = [];
 let me;
 let mytreasure;
@@ -13,16 +29,16 @@ let distances = [];
 let canvasW;
 let canvasH;
 let txPos;
-let tyPox;
+let tyPos;
 
-let state = 1;
+let othersAround = false;
 
 let contents = [
   "I am the black cat",
   "I am a Nokia flip phone",
   "I am a Twitter bot",
 ];
-let content ="";
+let content = "";
 
 let socket = io.connect();
 
@@ -34,14 +50,13 @@ socket.on("connect", () => {
 function setup() {
   createCanvas(800, 800);
 
-  xPos = Math.floor(Math.random() * 400);
-  yPos = Math.floor(Math.random() * 400);
+  xPos = width / 2;
+  yPos = height / 2;
   color = {
     r: Math.floor(Math.random() * 255),
     g: Math.floor(Math.random() * 255),
     b: Math.floor(Math.random() * 255),
   };
-
 
   txPos = random(20, width - 20);
   tyPos = random(20, height - 20);
@@ -52,7 +67,7 @@ function setup() {
   //set up my treasure
   // treasures.push(new Treasure(txPos, tyPos, content));
 
-  socket.emit("join", { xPos, yPos, color});
+  socket.emit("join", { xPos, yPos, color });
   // socket.emit("drop", { txPos, tyPos, content});
 
   //get the default distance to the array;
@@ -72,7 +87,7 @@ function draw() {
   players.map((e) => e.display());
 
   //show all treasure
-  treasures.map((e) => e.display());
+  //   treasures.map((e) => e.display());
 
   //move
   if (keyIsDown(LEFT_ARROW)) {
@@ -88,7 +103,18 @@ function draw() {
   //update distances between users and treasures;
   for (let i = 0; i < treasures.length; i++) {
     distance = floor(dist(me.xPos, me.yPos, treasures[i].x, treasures[i].y));
-    if (distance < 20) {
+    othersAround = false;
+    for (let j = 0; j < players.length; j++) {
+      otherDistance = floor(
+        dist(players[j].xPos, players[j].yPos, treasures[i].x, treasures[i].y)
+      );
+      if (otherDistance < 20) {
+        othersAround = true;
+      }
+    }
+
+    if (distance < 20 && othersAround == true) {
+      treasures[i].display();
       treasures[i].showText();
     }
 
@@ -99,7 +125,6 @@ function draw() {
   distances.sort((a, b) => a - b);
   me.displayDistance(distances[0]);
 }
-
 
 //initial other players that already in this map
 function initPlayers(people) {
@@ -123,9 +148,7 @@ function initTreasures(items) {
   items
     .filter((e) => e.id != myId)
     .forEach((item) => {
-      treasures.push(
-        new Treasure(item.txPos, item.tyPos, item.content)
-      );
+      treasures.push(new Treasure(item.txPos, item.tyPos, item.content));
     });
 
   // console.log(treasures);
@@ -148,26 +171,19 @@ function move(x, y) {
 }
 
 //submit function
-function submit(){
-  let text = document.getElementById("myText");
+window.onload = submitButton.addEventListener("click", submit);
+
+function submit() {
+  let text = document.getElementById("user-input");
   content = text.value;
   treasures.push(new Treasure(txPos, tyPos, content));
-  socket.emit("drop", { txPos, tyPos, content});
-  // console.log(treasures);
+  socket.emit("drop", { txPos, tyPos, content });
+  bgCanvas.style.display = "none";
+  questionBox.style.display = "none";
   let ctx = document.getElementById("defaultCanvas0");
+  console.log(ctx);
   ctx.style.display = "block";
-  // state = 2;
-  // loop();
 }
-
-// const submit = new Promise((resolve, reject) => {
-//   let text = document.getElementById("myText");
-//   if(text.value != ""){
-//     resolve(text.value);
-//   }else{
-//     reject("rejected");
-//   }
-// });
 
 //================================= Socket.on =============================
 

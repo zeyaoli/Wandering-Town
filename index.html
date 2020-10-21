@@ -4,20 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wandering Town</title>
-    <style>
-        html, body{
-            margin:0;
-        }
-    </style>
-    <link rel="stylesheet" href="src/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+    <link rel="stylesheet" href="src/main.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
 <body>
+    <main>
+        <div id="start"> 
+          <p id="first">Welcome, Human. <br>
+            You are about to land at Town x5928.
+            <br>
+            a.k.a the town of e-waste.
+            <br>
+            Before you get in,
+            <br>
+            let me ask you a question:</p>
+            <button type="button" id="firstButton">Go Ahead</button>
+        </div>
+    
+        <div id="question-container">
+            <p id="question">What was your most memorable tech product from the past?</p>
+            <input type="text" id="user-input" placeholder="E.g.: iPod Classic">
+            <button id="submit">Submit</button>
+        </div>
+    </main>
     <script src="./src/Treasure.js"></script>
     <script src="./src/Avatar.js"></script>
-    <input type="text" id="myText">
-    <button onclick="submit()" id="submit">Submit</button>
     <script src="./src/index.js"></script>
+    <script src="./src/bgCanvas.js"></script>
 </body>
 </html>
