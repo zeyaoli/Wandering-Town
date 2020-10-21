@@ -47,7 +47,8 @@ let bgCanvasSketch = function (p) {
   };
 };
 
-let bgCanvas = new p5(bgCanvasSketch);
+//Create landing p5 canvas
+let bgCanvas = new p5(bgCanvasSketch, 'landing');
 
 class WordLine {
   constructor(x, y) {
