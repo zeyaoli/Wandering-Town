@@ -8,9 +8,12 @@ const questionBox = document.getElementById("question-container");
 // console.log(bgCanvas);
 
 firstButton.addEventListener("click", () => {
+  console.log("first btn");
   startBox.style.display = "none";
   questionBox.style.display = "flex";
 });
+
+
 
 // ============================================================================
 
@@ -155,7 +158,8 @@ let sketch = function (p) {
   }
 };
 
-let game = new p5(sketch);
+//Create game p5 canvas
+let game = new p5(sketch, 'game');
 
 // function setup() {
 //   let cnv = createCanvas(800, 800);
@@ -290,7 +294,7 @@ function submit() {
   content = text.value;
   treasures.push(new Treasure(txPos, tyPos, content));
   socket.emit("drop", { txPos, tyPos, content });
-  //   document.getElementById("bgCanvas").style.display = "none";
+  document.getElementById("landing").style.display = "none";
   questionBox.style.display = "none";
   document.getElementById("game").style.display = "block";
 }

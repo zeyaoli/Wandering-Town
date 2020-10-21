@@ -12,7 +12,7 @@ main {
   height: 100vh;
 }
 
-#bgCanvas {
+#landing {
   position: absolute;
   display: block;
   z-index: 1;
@@ -78,5 +78,5 @@ input[type="text"] {
 }
 
 #game {
-  display: none;
+  /* display: none; */
 }
