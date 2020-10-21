@@ -12,42 +12,35 @@ let yDefault = 65;
 
 let spacing = 30;
 
-let bgCanvasSketch = function (p) {
-  window.p = p;
+function setup() {
+  let size = 60;
+  let cnv = createCanvas(windowWidth, windowHeight);
+  cnv.id("bgCanvas");
+  textSize(size);
 
-  p.setup = () => {
-    let size = 60;
-    let cnv = p.createCanvas(p.windowWidth, p.windowHeight);
-    cnv.id("bgCanvas");
-    p.textSize(size);
+  for (let col = 0; col < floor(windowHeight / size); col++) {
+    grids.push(new WordLine(col * -120 + random(-50, 50), 78 * (col + 1)));
+  }
 
-    for (let col = 0; col < p.floor(p.windowHeight / size); col++) {
-      grids.push(new WordLine(col * -120 + p.random(-50, 50), 78 * (col + 1)));
+  for (let i = 0; i < grids.length; i++) {
+    grids[i].init();
+  }
+}
+
+function draw() {
+  background(255);
+
+  for (let i = 0; i < grids.length; i++) {
+    if (i % 2 == 0) {
+      grids[i].speed = 1;
     }
+    grids[i].moveLine();
+  }
+}
 
-    for (let i = 0; i < grids.length; i++) {
-      grids[i].init(p);
-    }
-  };
-
-  p.draw = () => {
-    p.background(255);
-
-    for (let i = 0; i < grids.length; i++) {
-      //if odd num
-      if (i % 2 == 0) {
-        grids[i].speed = 1;
-      }
-      grids[i].moveLine(p);
-    }
-  };
-
-  p.windowResized = () => {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
-  };
-};
-
-let bgCanvas = new p5(bgCanvasSketch);
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
 
 class WordLine {
   constructor(x, y) {
@@ -57,9 +50,9 @@ class WordLine {
     this.speed = -1;
   }
   // initiate the words and push it to the wordline
-  init(p) {
+  init() {
     for (let i = 0; i < contentArr.length; i++) {
-      this.words.push(new Word(this.x, this.y, contentArr[i], p));
+      this.words.push(new Word(this.x, this.y, contentArr[i]));
     }
 
     // update xPos value
@@ -71,7 +64,7 @@ class WordLine {
     }
   }
   //move and display words in a line
-  moveLine(p) {
+  moveLine() {
     for (let i = 0; i < this.words.length; i++) {
       //update x value and loop it back
       this.words[i].x += this.speed;
@@ -88,7 +81,7 @@ class WordLine {
           }
         }
       } else if (this.speed == 1) {
-        if (this.words[i].x >= p.width) {
+        if (this.words[i].x >= width) {
           if (i < this.words.length - 1) {
             this.words[i].x =
               this.words[i + 1].x - spacing - this.words[i].sWidth;
@@ -102,23 +95,20 @@ class WordLine {
           // console.log(this.words[0].x);
         }
       }
-      // console.log(this.words[i]);
-      this.words[i].display(p);
+      this.words[i].display();
     }
   }
 }
 
 class Word {
-  constructor(x, y, content, p) {
+  constructor(x, y, content) {
     this.x = x;
     this.y = y;
     this.content = content;
-    this.sWidth = p.textWidth(this.content);
+    this.sWidth = textWidth(this.content);
   }
 
-  display(p) {
-    // console.log(p.textSize(this.content));
-    // this.sWidth = p.textWidth(this.content);
-    p.text(this.content, this.x, this.y);
+  display(y) {
+    text(this.content, this.x, this.y);
   }
 }

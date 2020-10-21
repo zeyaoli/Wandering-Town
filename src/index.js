@@ -3,9 +3,9 @@ const submitButton = document.getElementById("submit");
 
 const startBox = document.getElementById("start");
 const questionBox = document.getElementById("question-container");
-const bgCanvas = document.getElementById("bgCanvas");
+// const bgCanvas = document.getElementById("bgCanvas");
 
-console.log(bgCanvas);
+// console.log(bgCanvas);
 
 firstButton.addEventListener("click", () => {
   startBox.style.display = "none";
@@ -47,84 +47,194 @@ socket.on("connect", () => {
 });
 
 // setup the canvas
-function setup() {
-  createCanvas(800, 800);
+let sketch = function (p) {
+  window.p = p;
+  p.setup = function () {
+    let cnv = p.createCanvas(800, 800);
+    cnv.id("game");
+    xPos = p.width / 2;
+    yPos = p.height / 2;
+    color = {
+      r: Math.floor(Math.random() * 255),
+      g: Math.floor(Math.random() * 255),
+      b: Math.floor(Math.random() * 255),
+    };
 
-  xPos = width / 2;
-  yPos = height / 2;
-  color = {
-    r: Math.floor(Math.random() * 255),
-    g: Math.floor(Math.random() * 255),
-    b: Math.floor(Math.random() * 255),
+    txPos = p.random(20, p.width - 20);
+    tyPos = p.random(20, p.height - 20);
+
+    me = new Avatar(0, xPos, yPos, color, p);
+
+    // content = contents[floor(Math.random()*contents.length)];
+    //set up my treasure
+    // treasures.push(new Treasure(txPos, tyPos, content));
+
+    socket.emit("join", { xPos, yPos, color });
+    // socket.emit("drop", { txPos, tyPos, content});
+
+    //get the default distance to the array;
+    for (let i = 0; i < treasures.length; i++) {
+      distance = p.floor(
+        p.dist(me.xPos, me.yPos, treasures[i].x, treasures[i].y)
+      );
+
+      distances.push(distance);
+    }
   };
 
-  txPos = random(20, width - 20);
-  tyPos = random(20, height - 20);
+  p.draw = function () {
+    p.background(100);
+    p.fill(200);
+    p.rectMode(p.CORNER);
+    p.rect(0, 0, p.width, p.height);
+    //draw me
+    me.display(p);
+    //draw other players
+    players.map((e) => e.display(p));
 
-  me = new Avatar(0, xPos, yPos, color);
+    //show all treasure
+    // treasures.map((e) => e.display(p));
 
-  // content = contents[floor(Math.random()*contents.length)];
-  //set up my treasure
-  // treasures.push(new Treasure(txPos, tyPos, content));
+    //move
+    if (p.keyIsDown(p.LEFT_ARROW)) {
+      move(-2, 0);
+    } else if (p.keyIsDown(p.RIGHT_ARROW)) {
+      move(2, 0);
+    } else if (p.keyIsDown(p.UP_ARROW)) {
+      move(0, -2);
+    } else if (p.keyIsDown(p.DOWN_ARROW)) {
+      move(0, 2);
+    }
 
-  socket.emit("join", { xPos, yPos, color });
-  // socket.emit("drop", { txPos, tyPos, content});
+    //update distances between users and treasures;
+    for (let i = 0; i < treasures.length; i++) {
+      distance = p.floor(
+        p.dist(me.xPos, me.yPos, treasures[i].x, treasures[i].y)
+      );
+      othersAround = false;
+      for (let j = 0; j < players.length; j++) {
+        otherDistance = p.floor(
+          p.dist(
+            players[j].xPos,
+            players[j].yPos,
+            treasures[i].x,
+            treasures[i].y
+          )
+        );
+        if (otherDistance < 20) {
+          othersAround = true;
+        }
+      }
 
-  //get the default distance to the array;
-  for (let i = 0; i < treasures.length; i++) {
-    distance = floor(dist(me.xPos, me.yPos, treasures[i].x, treasures[i].y));
+      if (distance < 20 && othersAround == true) {
+        treasures[i].display(p);
+        treasures[i].showText(p);
+      }
 
-    distances.push(distance);
+      distances[i] = distance;
+    }
+
+    //get the minimum distance
+    distances.sort((a, b) => a - b);
+    me.displayDistance(p, distances[0]);
+  };
+
+  function move(x, y) {
+    xPos += x;
+    yPos += y;
+
+    if (xPos > p.width) xPos = p.width;
+    if (yPos > p.height) yPos = p.height;
+    if (xPos <= me.size / 2) xPos = me.size / 2;
+    if (yPos <= me.size / 2) yPos = me.size / 2;
+
+    // console.log("xPos: " + xPos + ",yPos: " + yPos);
+    me.xPos = xPos;
+    me.yPos = yPos;
+    socket.emit("move", { xPos, yPos });
   }
-}
+};
+
+let game = new p5(sketch);
+
+// function setup() {
+//   let cnv = createCanvas(800, 800);
+//   cnv.id("game");
+//   xPos = width / 2;
+//   yPos = height / 2;
+//   color = {
+//     r: Math.floor(Math.random() * 255),
+//     g: Math.floor(Math.random() * 255),
+//     b: Math.floor(Math.random() * 255),
+//   };
+
+//   txPos = random(20, width - 20);
+//   tyPos = random(20, height - 20);
+
+//   me = new Avatar(0, xPos, yPos, color);
+
+//   // content = contents[floor(Math.random()*contents.length)];
+//   //set up my treasure
+//   // treasures.push(new Treasure(txPos, tyPos, content));
+
+//   socket.emit("join", { xPos, yPos, color });
+//   // socket.emit("drop", { txPos, tyPos, content});
+
+//   //get the default distance to the array;
+//   for (let i = 0; i < treasures.length; i++) {
+//     distance = floor(dist(me.xPos, me.yPos, treasures[i].x, treasures[i].y));
+
+//     distances.push(distance);
+//   }
+// }
 
 // draw the canvas
-function draw() {
-  background(200);
-  //draw me
-  me.display();
-  //draw other players
-  players.map((e) => e.display());
+// function draw() {
+//   background(200);
+//   //draw me
+//   me.display();
+//   //draw other players
+//   players.map((e) => e.display());
 
-  //show all treasure
-  //   treasures.map((e) => e.display());
+//   //show all treasure
+//   //   treasures.map((e) => e.display());
 
-  //move
-  if (keyIsDown(LEFT_ARROW)) {
-    move(-2, 0);
-  } else if (keyIsDown(RIGHT_ARROW)) {
-    move(2, 0);
-  } else if (keyIsDown(UP_ARROW)) {
-    move(0, -2);
-  } else if (keyIsDown(DOWN_ARROW)) {
-    move(0, 2);
-  }
+//   //move
+//   if (keyIsDown(LEFT_ARROW)) {
+//     move(-2, 0);
+//   } else if (keyIsDown(RIGHT_ARROW)) {
+//     move(2, 0);
+//   } else if (keyIsDown(UP_ARROW)) {
+//     move(0, -2);
+//   } else if (keyIsDown(DOWN_ARROW)) {
+//     move(0, 2);
+//   }
 
-  //update distances between users and treasures;
-  for (let i = 0; i < treasures.length; i++) {
-    distance = floor(dist(me.xPos, me.yPos, treasures[i].x, treasures[i].y));
-    othersAround = false;
-    for (let j = 0; j < players.length; j++) {
-      otherDistance = floor(
-        dist(players[j].xPos, players[j].yPos, treasures[i].x, treasures[i].y)
-      );
-      if (otherDistance < 20) {
-        othersAround = true;
-      }
-    }
+//   //update distances between users and treasures;
+//   for (let i = 0; i < treasures.length; i++) {
+//     distance = floor(dist(me.xPos, me.yPos, treasures[i].x, treasures[i].y));
+//     othersAround = false;
+//     for (let j = 0; j < players.length; j++) {
+//       otherDistance = floor(
+//         dist(players[j].xPos, players[j].yPos, treasures[i].x, treasures[i].y)
+//       );
+//       if (otherDistance < 20) {
+//         othersAround = true;
+//       }
+//     }
 
-    if (distance < 20 && othersAround == true) {
-      treasures[i].display();
-      treasures[i].showText();
-    }
+//     if (distance < 20 && othersAround == true) {
+//       treasures[i].display();
+//       treasures[i].showText();
+//     }
 
-    distances[i] = distance;
-  }
+//     distances[i] = distance;
+//   }
 
-  //get the minimum distance
-  distances.sort((a, b) => a - b);
-  me.displayDistance(distances[0]);
-}
+//   //get the minimum distance
+//   distances.sort((a, b) => a - b);
+//   me.displayDistance(distances[0]);
+// }
 
 //initial other players that already in this map
 function initPlayers(people) {
@@ -148,27 +258,29 @@ function initTreasures(items) {
   items
     .filter((e) => e.id != myId)
     .forEach((item) => {
-      treasures.push(new Treasure(item.txPos, item.tyPos, item.content));
+      treasures.push(
+        new Treasure(item.txPos, item.tyPos, item.content, item.p)
+      );
     });
 
   // console.log(treasures);
 }
 
 // move position
-function move(x, y) {
-  xPos += x;
-  yPos += y;
+// function move(x, y) {
+//   xPos += x;
+//   yPos += y;
 
-  if (xPos > width) xPos = width;
-  if (yPos > height) yPos = height;
-  if (xPos <= me.size / 2) xPos = me.size / 2;
-  if (yPos <= me.size / 2) yPos = me.size / 2;
+//   if (xPos > width) xPos = width;
+//   if (yPos > height) yPos = height;
+//   if (xPos <= me.size / 2) xPos = me.size / 2;
+//   if (yPos <= me.size / 2) yPos = me.size / 2;
 
-  // console.log("xPos: " + xPos + ",yPos: " + yPos);
-  me.xPos = xPos;
-  me.yPos = yPos;
-  socket.emit("move", { xPos, yPos });
-}
+//   // console.log("xPos: " + xPos + ",yPos: " + yPos);
+//   me.xPos = xPos;
+//   me.yPos = yPos;
+//   socket.emit("move", { xPos, yPos });
+// }
 
 //submit function
 window.onload = submitButton.addEventListener("click", submit);
@@ -178,11 +290,9 @@ function submit() {
   content = text.value;
   treasures.push(new Treasure(txPos, tyPos, content));
   socket.emit("drop", { txPos, tyPos, content });
-  bgCanvas.style.display = "none";
+  //   document.getElementById("bgCanvas").style.display = "none";
   questionBox.style.display = "none";
-  let ctx = document.getElementById("defaultCanvas0");
-  console.log(ctx);
-  ctx.style.display = "block";
+  document.getElementById("game").style.display = "block";
 }
 
 //================================= Socket.on =============================
