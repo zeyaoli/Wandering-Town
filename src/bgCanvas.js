@@ -31,6 +31,9 @@ function draw() {
   background(255);
 
   for (let i = 0; i < grids.length; i++) {
+    if (i % 2 == 0) {
+      grids[i].speed = 1;
+    }
     grids[i].moveLine();
   }
 }
@@ -44,6 +47,7 @@ class WordLine {
     this.x = x;
     this.y = y;
     this.words = [];
+    this.speed = -1;
   }
   // initiate the words and push it to the wordline
   init() {
@@ -63,16 +67,32 @@ class WordLine {
   moveLine() {
     for (let i = 0; i < this.words.length; i++) {
       //update x value and loop it back
-      this.words[i].x -= 1;
-      if (this.words[i].x + this.words[i].sWidth <= 0) {
-        if (i > 0) {
-          this.words[i].x =
-            this.words[i - 1].x + this.words[i - 1].sWidth + spacing;
-        } else {
-          this.words[i].x =
-            this.words[this.words.length - 1].x +
-            this.words[this.words.length - 1].sWidth +
-            spacing;
+      this.words[i].x += this.speed;
+      if (this.speed == -1) {
+        if (this.words[i].x + this.words[i].sWidth <= 0) {
+          if (i > 0) {
+            this.words[i].x =
+              this.words[i - 1].x + this.words[i - 1].sWidth + spacing;
+          } else {
+            this.words[i].x =
+              this.words[this.words.length - 1].x +
+              this.words[this.words.length - 1].sWidth +
+              spacing;
+          }
+        }
+      } else if (this.speed == 1) {
+        if (this.words[i].x >= width) {
+          if (i < this.words.length - 1) {
+            this.words[i].x =
+              this.words[i + 1].x - spacing - this.words[i].sWidth;
+          } else {
+            this.words[this.words.length - 1].x =
+              this.words[0].x -
+              spacing -
+              this.words[this.words.length - 1].sWidth;
+          }
+          // console.log(this.words[this.words.length - 1].x)
+          // console.log(this.words[0].x);
         }
       }
       this.words[i].display();
