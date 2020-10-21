@@ -161,84 +161,7 @@ let sketch = function (p) {
 //Create game p5 canvas
 let game = new p5(sketch, 'game');
 
-// function setup() {
-//   let cnv = createCanvas(800, 800);
-//   cnv.id("game");
-//   xPos = width / 2;
-//   yPos = height / 2;
-//   color = {
-//     r: Math.floor(Math.random() * 255),
-//     g: Math.floor(Math.random() * 255),
-//     b: Math.floor(Math.random() * 255),
-//   };
 
-//   txPos = random(20, width - 20);
-//   tyPos = random(20, height - 20);
-
-//   me = new Avatar(0, xPos, yPos, color);
-
-//   // content = contents[floor(Math.random()*contents.length)];
-//   //set up my treasure
-//   // treasures.push(new Treasure(txPos, tyPos, content));
-
-//   socket.emit("join", { xPos, yPos, color });
-//   // socket.emit("drop", { txPos, tyPos, content});
-
-//   //get the default distance to the array;
-//   for (let i = 0; i < treasures.length; i++) {
-//     distance = floor(dist(me.xPos, me.yPos, treasures[i].x, treasures[i].y));
-
-//     distances.push(distance);
-//   }
-// }
-
-// draw the canvas
-// function draw() {
-//   background(200);
-//   //draw me
-//   me.display();
-//   //draw other players
-//   players.map((e) => e.display());
-
-//   //show all treasure
-//   //   treasures.map((e) => e.display());
-
-//   //move
-//   if (keyIsDown(LEFT_ARROW)) {
-//     move(-2, 0);
-//   } else if (keyIsDown(RIGHT_ARROW)) {
-//     move(2, 0);
-//   } else if (keyIsDown(UP_ARROW)) {
-//     move(0, -2);
-//   } else if (keyIsDown(DOWN_ARROW)) {
-//     move(0, 2);
-//   }
-
-//   //update distances between users and treasures;
-//   for (let i = 0; i < treasures.length; i++) {
-//     distance = floor(dist(me.xPos, me.yPos, treasures[i].x, treasures[i].y));
-//     othersAround = false;
-//     for (let j = 0; j < players.length; j++) {
-//       otherDistance = floor(
-//         dist(players[j].xPos, players[j].yPos, treasures[i].x, treasures[i].y)
-//       );
-//       if (otherDistance < 20) {
-//         othersAround = true;
-//       }
-//     }
-
-//     if (distance < 20 && othersAround == true) {
-//       treasures[i].display();
-//       treasures[i].showText();
-//     }
-
-//     distances[i] = distance;
-//   }
-
-//   //get the minimum distance
-//   distances.sort((a, b) => a - b);
-//   me.displayDistance(distances[0]);
-// }
 
 //initial other players that already in this map
 function initPlayers(people) {
@@ -270,21 +193,6 @@ function initTreasures(items) {
   // console.log(treasures);
 }
 
-// move position
-// function move(x, y) {
-//   xPos += x;
-//   yPos += y;
-
-//   if (xPos > width) xPos = width;
-//   if (yPos > height) yPos = height;
-//   if (xPos <= me.size / 2) xPos = me.size / 2;
-//   if (yPos <= me.size / 2) yPos = me.size / 2;
-
-//   // console.log("xPos: " + xPos + ",yPos: " + yPos);
-//   me.xPos = xPos;
-//   me.yPos = yPos;
-//   socket.emit("move", { xPos, yPos });
-// }
 
 //submit function
 window.onload = submitButton.addEventListener("click", submit);
@@ -316,7 +224,7 @@ socket.on("join", (data) => {
 //Update the treasure
 socket.on("drop", (data) => {
   treasures.push(new Treasure(data.txPos, data.tyPos, data.content));
-  console.log(treasures);
+  // console.log(treasures);
 });
 
 //Update when the player moves
