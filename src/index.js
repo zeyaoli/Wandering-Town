@@ -13,10 +13,8 @@ firstButton.addEventListener("click", () => {
   questionBox.style.display = "flex";
 });
 
-
-
 // ============================================================================
-
+let game;
 let players = [];
 let me;
 let mytreasure;
@@ -51,7 +49,6 @@ socket.on("connect", () => {
 
 // setup the canvas
 let sketch = function (p) {
-  window.p = p;
   p.setup = function () {
     let cnv = p.createCanvas(800, 800);
     cnv.id("game");
@@ -86,7 +83,7 @@ let sketch = function (p) {
   };
 
   p.draw = function () {
-    p.background(100);
+    // p.background(100, 200, 200);
     p.fill(200);
     p.rectMode(p.CORNER);
     p.rect(0, 0, p.width, p.height);
@@ -158,11 +155,6 @@ let sketch = function (p) {
   }
 };
 
-//Create game p5 canvas
-let game = new p5(sketch, 'game');
-
-
-
 //initial other players that already in this map
 function initPlayers(people) {
   players = [];
@@ -193,11 +185,12 @@ function initTreasures(items) {
   // console.log(treasures);
 }
 
-
 //submit function
 window.onload = submitButton.addEventListener("click", submit);
 
 function submit() {
+  //Create game p5 canvas
+  game = new p5(sketch, "game");
   let text = document.getElementById("user-input");
   content = text.value;
   treasures.push(new Treasure(txPos, tyPos, content));

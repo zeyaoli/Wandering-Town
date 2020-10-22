@@ -13,8 +13,6 @@ let yDefault = 65;
 let spacing = 30;
 
 let bgCanvasSketch = function (p) {
-  window.p = p;
-
   p.setup = () => {
     let size = 60;
     let cnv = p.createCanvas(p.windowWidth, p.windowHeight);
@@ -48,7 +46,7 @@ let bgCanvasSketch = function (p) {
 };
 
 //Create landing p5 canvas
-let bgCanvas = new p5(bgCanvasSketch, 'landing');
+let bgCanvas = new p5(bgCanvasSketch, "landing");
 
 class WordLine {
   constructor(x, y) {
